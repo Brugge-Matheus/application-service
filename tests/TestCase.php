@@ -2,13 +2,16 @@
 
 namespace BruggeMatheus\ServiceLayer\Tests;
 
+use BruggeMatheus\ServiceLayer\ApplicationServiceProvider;
 use Orchestra\Testbench\TestCase as Orchestra;
 
 class TestCase extends Orchestra
 {
     protected function getPackageProviders($app): array
     {
-        return [];
+        return [
+            ApplicationServiceProvider::class,
+        ];
     }
 
     protected function defineEnvironment($app): void

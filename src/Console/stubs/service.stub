@@ -1,0 +1,24 @@
+<?php
+
+namespace {{ namespace }};
+
+use BruggeMatheus\ServiceLayer\ApplicationService;
+
+class {{ class }} extends ApplicationService
+{
+    public function __construct(
+        //
+    ) {}
+
+    protected function rules(): array
+    {
+        return [
+            //
+        ];
+    }
+
+    public function run(): mixed
+    {
+        //
+    }
+}

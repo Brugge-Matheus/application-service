@@ -10,6 +10,20 @@ Inspired by the Ruby gem [application_action](https://github.com/Rudiney/applica
 composer require brugge-matheus/application-service
 ```
 
+## Generating a service
+
+The package registers an artisan command to scaffold a new service:
+
+```bash
+php artisan make:service CreateUser
+# → app/Services/CreateUser.php
+
+php artisan make:service Orders/PlaceOrder
+# → app/Services/Orders/PlaceOrder.php
+```
+
+The generated file already extends `ApplicationService` with the correct namespace, an empty constructor, `rules()`, and `run()` — ready to fill in.
+
 ## Usage
 
 Extend `ApplicationService`, declare your inputs as `public` properties, define the validation rules, and implement `run()`.
@@ -127,9 +141,9 @@ Consider an e-commerce app where a customer places an order. The flow involves v
 class PlaceOrder extends ApplicationService
 {
     public function __construct(
-        public readonly User    $customer,
+        public readonly User $customer,
         public readonly Product $product,
-        public readonly int     $quantity,
+        public readonly int $quantity,
     ) {}
 
     protected function rules(): array
@@ -142,10 +156,10 @@ class PlaceOrder extends ApplicationService
     public function run(): mixed
     {
         $order = Order::create([
-            'user_id'    => $this->customer->id,
+            'user_id' => $this->customer->id,
             'product_id' => $this->product->id,
-            'quantity'   => $this->quantity,
-            'total'      => $this->product->price * $this->quantity,
+            'quantity' => $this->quantity,
+            'total' => $this->product->price * $this->quantity,
         ]);
 
         $this->product->decrement('stock', $this->quantity);
@@ -173,7 +187,7 @@ class PlaceOrderJob implements ShouldQueue
     {
         (new PlaceOrder(
             customer: $this->customer,
-            product:  $this->product,
+            product: $this->product,
             quantity: $this->quantity,
         ))->save();
     }

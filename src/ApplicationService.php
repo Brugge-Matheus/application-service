@@ -5,6 +5,8 @@ namespace BruggeMatheus\ServiceLayer;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\MessageBag;
+use ReflectionClass;
+use ReflectionMethod;
 
 abstract class ApplicationService
 {
@@ -16,11 +18,12 @@ abstract class ApplicationService
 
     private function runCustomValidations(): void
     {
-        $methods = get_class_methods($this);
+        $methods = (new ReflectionClass($this))->getMethods(ReflectionMethod::IS_PROTECTED);
 
         foreach ($methods as $method) {
-            if (str_starts_with($method, 'validate') && $method !== 'validate') {
-                $this->$method();
+            if (str_starts_with($method->name, 'validate')
+                && $method->getDeclaringClass()->getName() !== self::class) {
+                $method->invoke($this);
             }
         }
     }

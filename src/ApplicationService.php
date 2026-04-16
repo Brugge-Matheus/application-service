@@ -14,15 +14,37 @@ abstract class ApplicationService
 
     abstract public function run(): mixed;
 
+    private function runCustomValidations(): void
+    {
+        $methods = get_class_methods($this);
+
+        foreach ($methods as $method) {
+            if (str_starts_with($method, 'validate') && $method !== 'validate') {
+                $this->$method();
+            }
+        }
+    }
+
+    protected function addError(string $field, string $message): void
+    {
+        $this->errors ??= new MessageBag;
+        $this->errors->add($field, $message);
+    }
+
     private function validate(): ?array
     {
-        $data = collect(get_object_vars($this))->except('errors')->toArray();
+        $this->errors = new MessageBag;
 
+        $data = collect(get_object_vars($this))->except('errors')->toArray();
         $validator = Validator::make($data, $this->rules());
 
         if ($validator->fails()) {
-            $this->errors = $validator->errors();
+            $this->errors->merge($validator->errors());
+        }
 
+        $this->runCustomValidations();
+
+        if ($this->errors->isNotEmpty()) {
             return ['status' => false, 'message' => $this->errors->first()];
         }
 

@@ -14,7 +14,7 @@ abstract class ApplicationService
 
     abstract public function run(): mixed;
 
-    public function save(): mixed
+    private function validate(): ?array
     {
         $data = collect(get_object_vars($this))->except('errors')->toArray();
 
@@ -26,7 +26,25 @@ abstract class ApplicationService
             return ['status' => false, 'message' => $this->errors->first()];
         }
 
+        return null;
+    }
+
+    public function save(): mixed
+    {
+        if ($failure = $this->validate()) {
+            return $failure;
+        }
+
         return DB::transaction(fn () => $this->run());
+    }
+
+    public function call(): mixed
+    {
+        if ($failure = $this->validate()) {
+            return $failure;
+        }
+
+        return $this->run();
     }
 
     public function errors(): MessageBag

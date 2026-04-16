@@ -23,7 +23,7 @@ describe('save()', function () {
 
     it('message matches the first error in the MessageBag', function () {
         $service = new EmailService(email: 'bad');
-        $result  = $service->save();
+        $result = $service->save();
         expect($result['message'])->toBe($service->errors()->first());
     });
 
@@ -83,7 +83,7 @@ describe('call()', function () {
 
     it('message matches the first error in the MessageBag', function () {
         $service = new EmailService(email: 'bad');
-        $result  = $service->call();
+        $result = $service->call();
         expect($result['message'])->toBe($service->errors()->first());
     });
 
@@ -130,7 +130,7 @@ describe('call()', function () {
 // when called from the parent scope — validator receives empty data
 // this applies equally to save() and call() since both go through validate()
 it('private subclass properties are invisible to the validator', function () {
-    $service = new class ('valid@email.com') extends ApplicationService
+    $service = new class('valid@email.com') extends ApplicationService
     {
         public function __construct(private readonly string $email) {}
 

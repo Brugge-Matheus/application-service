@@ -106,6 +106,50 @@ $service->errors()->has('email'); // true
 
 > **Note on property visibility:** Laravel's `Validator` receives input collected via `get_object_vars($this)` from the parent class scope. This means properties must be declared as `public` or `protected` — `private` properties on the subclass are invisible to the parent and will never reach the validator.
 
+### Custom validations with `validate*()`
+
+For logic that goes beyond what Laravel's rule strings can express, declare `protected` methods prefixed with `validate` in your service. They are discovered and executed automatically — every one of them runs regardless of whether a previous one already failed, so all errors are accumulated at once.
+
+```php
+class PlaceOrder extends ApplicationService
+{
+    public function __construct(
+        public readonly User    $customer,
+        public readonly Product $product,
+        public readonly int     $quantity,
+    ) {}
+
+    protected function rules(): array
+    {
+        return ['quantity' => ['required', 'integer', 'min:1']];
+    }
+
+    protected function validateStockAvailability(): void
+    {
+        if ($this->product->stock < $this->quantity) {
+            $this->addError(
+                'quantity',
+                "Insufficient stock. Available: {$this->product->stock}."
+            );
+        }
+    }
+
+    protected function validateCustomerActive(): void
+    {
+        if (! $this->customer->is_active) {
+            $this->addError('customer', 'Customer is inactive.');
+        }
+    }
+
+    public function run(): mixed
+    {
+        // only reaches here if rules() and all validate*() pass
+    }
+}
+```
+
+Use `$this->addError(field, message)` inside any `validate*()` method to register an error. Errors from `rules()` and from `validate*()` methods are merged into the same `MessageBag` and are all accessible via `errors()`.
+
 ## Concept
 
 A `Service` represents a single, named operation your application performs. Not a model, not a controller — something in between. It has a clear input, a clear contract, and a single responsibility: validate and execute.
@@ -119,6 +163,8 @@ Each `Service` does one thing. `CreateOrder`, `CancelSubscription`, `ProcessRefu
 #### Validation is part of the contract
 
 Rules are declared inside the `Service` itself via `rules()`. This is intentional — the validation belongs to the operation, not to the model. A `User` model might require an email to be present always, but only `InviteUser` requires it to be unique among pending invitations. These are different concerns.
+
+For logic that goes beyond what rule strings can express — cross-field checks, database lookups, external state — declare `protected` methods prefixed with `validate`. They are auto-discovered and all of them run before `run()` is ever called, accumulating every error at once. The caller sees the full picture in a single response, not one error at a time.
 
 #### `save()` vs `call()` — choose based on what you're doing
 
@@ -141,9 +187,9 @@ Consider an e-commerce app where a customer places an order. The flow involves v
 class PlaceOrder extends ApplicationService
 {
     public function __construct(
-        public readonly User $customer,
+        public readonly User    $customer,
         public readonly Product $product,
-        public readonly int $quantity,
+        public readonly int     $quantity,
     ) {}
 
     protected function rules(): array
@@ -151,6 +197,23 @@ class PlaceOrder extends ApplicationService
         return [
             'quantity' => ['required', 'integer', 'min:1'],
         ];
+    }
+
+    protected function validateStockAvailability(): void
+    {
+        if ($this->product->stock < $this->quantity) {
+            $this->addError(
+                'quantity',
+                "Insufficient stock. Available: {$this->product->stock}."
+            );
+        }
+    }
+
+    protected function validateCustomerActive(): void
+    {
+        if (! $this->customer->is_active) {
+            $this->addError('customer', 'Customer is inactive.');
+        }
     }
 
     public function run(): mixed

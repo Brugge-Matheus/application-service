@@ -17,6 +17,13 @@ class {{ class }} extends ApplicationService
         ];
     }
 
+    // protected function validateSomething(): void
+    // {
+    //     if (/* invalid condition */) {
+    //         $this->addError('field', 'Message.');
+    //     }
+    // }
+
     public function run(): mixed
     {
         //

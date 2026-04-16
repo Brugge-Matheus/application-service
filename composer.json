@@ -1,0 +1,62 @@
+{
+  "name": "brugge-matheus/application-service",
+  "description": "A base class for encapsulating business logic in Laravel",
+  "type": "library",
+  "license": "MIT",
+  "keywords": [
+    "laravel",
+    "service",
+    "action",
+    "business-logic",
+    "php"
+  ],
+  "authors": [
+    {
+      "name": "Matheus Brugge Milczwski",
+      "email": "matheusmilczwski@gmail.com",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": "^8.2",
+    "illuminate/database": "^11.0|^12.0|^13.0",
+    "illuminate/validation": "^11.0|^12.0|^13.0",
+    "illuminate/support": "^11.0|^12.0|^13.0"
+  },
+  "require-dev": {
+    "orchestra/testbench": "^9.0|^10.0|^11.0",
+    "pestphp/pest": "^3.0",
+    "laravel/pint": "^1.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "BruggeMatheus\\ServiceLayer\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "BruggeMatheus\\ServiceLayer\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "test": "vendor/bin/pest",
+    "test-coverage": "vendor/bin/pest --coverage",
+    "format": "vendor/bin/pint",
+    "format-check": "vendor/bin/pint --test",
+    "security": "composer audit",
+    "lint": "vendor/bin/pint --test",
+    "check": [
+        "@audit",
+        "@lint",
+        "@test"
+    ]
+},
+  "config": {
+    "sort-packages": true,
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
+    }
+  },
+  "minimum-stability": "stable",
+  "prefer-stable": true
+}

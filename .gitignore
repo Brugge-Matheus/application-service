@@ -1,0 +1,30 @@
+# Dependencies
+/vendor/
+
+# Composer
+composer.lock
+
+# PHPUnit
+.phpunit.result.cache
+.phpunit.cache/
+coverage/
+
+# Laravel Pint
+.pint.cache
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.backup
+
+# PHPUnit local override
+phpunit.xml
